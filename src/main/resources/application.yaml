@@ -1,0 +1,12 @@
+spring:
+  datasource: # database connection configuration
+    # database connection string
+    url: jdbc:sqlserver://localhost:1433;databaseName=StudentManagement;encrypt=false
+    username: abc
+    password: 123
+    # JDBC Driver ដែលប្រើ
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    hibernate: # ជា ORM engine ដែល Spring Boot ប្រើដើម្បី manage database tables
+      ddl-auto: update #ប្រាប់ Hibernate ថា ត្រូវធ្វើអ្វីជាមួយ database schema (update table automatically)
+    show-sql: true #print SQL queries នៅក្នុង console
