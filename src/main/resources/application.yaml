@@ -10,3 +10,12 @@ spring:
     hibernate: # ជា ORM engine ដែល Spring Boot ប្រើដើម្បី manage database tables
       ddl-auto: update #ប្រាប់ Hibernate ថា ត្រូវធ្វើអ្វីជាមួយ database schema (update table automatically)
     show-sql: true #print SQL queries នៅក្នុង console
+
+app:
+  jwt:
+    secret: MySuperSecretKeyForJWTGeneration12345
+    expiration: 15m
+    refresh-expiration: 30d
+
+server:
+  port: 8181

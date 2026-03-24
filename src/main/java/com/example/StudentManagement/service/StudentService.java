@@ -49,7 +49,7 @@ public class StudentService {
         }
 
         var gender = genderRepository.findById(request.getGenderId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Gender not found"));
 
         var student = studentMapper.toEntity(request);
         student.setName(name);

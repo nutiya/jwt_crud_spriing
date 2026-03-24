@@ -1,5 +1,6 @@
 package com.example.StudentManagement.service;
 
+import com.example.StudentManagement.config.JwtConfig;
 import com.example.StudentManagement.dto.response.LoginResponse;
 import com.example.StudentManagement.dto.request.LoginRequest;
 import com.example.StudentManagement.dto.request.RegisterRequest;
@@ -37,8 +38,9 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtConfig jwtConfig;
 
-    private final long refreshTokenDurationMs = Duration.ofDays(30).toMillis();
+
 
     // Logout user by blacklisting token
     @Transactional
@@ -107,11 +109,10 @@ public class AuthService {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(token);
         refreshToken.setUser(user);
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        refreshToken.setExpiryDate(Instant.now().plusMillis(jwtConfig.getRefreshExpiration().toMillis()));
         refreshTokenRepository.save(refreshToken);
         return token;
     }
-
 
     public LoginResponse refreshAccessToken(String refreshTokenStr) {
 

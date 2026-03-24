@@ -46,15 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        //get route of requese
-        String path = request.getRequestURI();
-
-//        //check to except login and register route not check the jwt token.
-//        if (path.startsWith("/api/auth/register") || path.startsWith("/api/auth/login")) {
-//            //allows the request to continue
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
 
         //get header of request with Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         //if the header not equal Authorization it will store null

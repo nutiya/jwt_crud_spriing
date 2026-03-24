@@ -1,20 +1,21 @@
 package com.example.StudentManagement.security;
 
+import com.example.StudentManagement.config.JwtConfig;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 
 @Component
+@AllArgsConstructor
 public class JwtUtil {
-
-    private final String jwtSecret = "MySuperSecretKeyForJWTGeneration12345"; // at least 32 chars
-    private final long jwtExpirationMs = 15 * 60 * 1000; //
+    private final JwtConfig jwtConfig;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        return Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes());
     }
 
 
@@ -23,7 +24,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getExpiration().toMillis()))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
