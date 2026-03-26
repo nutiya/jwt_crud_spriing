@@ -13,7 +13,5 @@ public interface GenderMapper {
 
     GenderResponse toDto(Gender gender);
     Gender toEntity(GenderRequest request);
-
-
     void update(GenderRequest request, @MappingTarget Gender gender);
 }

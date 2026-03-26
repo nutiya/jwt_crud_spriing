@@ -8,25 +8,44 @@ import com.example.StudentManagement.exception.ResourceNotFoundException;
 import com.example.StudentManagement.mapper.StudentMapper;
 import com.example.StudentManagement.repository.GenderRepository;
 import com.example.StudentManagement.repository.StudentRepository;
+import com.example.StudentManagement.websocket.RawWebSocketController;
+import com.example.StudentManagement.websocket.WebSocketController;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final GenderRepository genderRepository;
+    private final WebSocketController webSocketController;
+    private final RawWebSocketController rawWebSocketController;
 
 
-    public List<StudentResponse> getAllStudents(String sort){
-        if(!Set.of("name", "email", "id").contains(sort.toLowerCase())) sort = "id";
-        return studentRepository.findAll(Sort.by(sort))
-                .stream()
+    public List<StudentResponse> getAllStudents(String sort, String keyword) {
+        // Validate sort field
+        if (!Set.of("id", "name", "email").contains(sort.toLowerCase())) {
+            sort = "id";
+        }
+
+        List<Student> students;
+
+        if (keyword != null && !keyword.isBlank()) {
+            // Search by name or email
+            students = studentRepository.searchByKeyword(keyword, Sort.by(sort));
+        } else {
+            // Get all students sorted
+            students = studentRepository.findAll(Sort.by(sort));
+        }
+
+        return students.stream()
                 .map(studentMapper::toDto)
                 .toList();
     }
@@ -57,7 +76,8 @@ public class StudentService {
         student.setAddress(address);
         student.setGender(gender);
         studentRepository.save(student);
-
+        webSocketController.sendEvent("STUDENT_CREATED", studentMapper.toDto(student));
+        rawWebSocketController.sendRawEvent("STUDENT_CREATED", studentMapper.toDto(student));
         return studentMapper.toDto(student);
     }
 
@@ -84,7 +104,8 @@ public class StudentService {
         student.setGender(gender);
         studentRepository.save(student);
 
-
+        webSocketController.sendEvent("STUDENT_UPDATED", studentMapper.toDto(student));
+        rawWebSocketController.sendRawEvent("STUDENT_UPDATED", studentMapper.toDto(student));
         return studentMapper.toDto(student);
     }
 
@@ -94,6 +115,9 @@ public class StudentService {
         var student = studentRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException("Student not found with id " + id));
         studentRepository.delete(student);
+
+        webSocketController.sendEvent("STUDENT_DELETED", StudentResponse.builder().id(id).build());
+        rawWebSocketController.sendRawEvent("STUDENT_DELETED", StudentResponse.builder().id(id).build());
     }
 
 

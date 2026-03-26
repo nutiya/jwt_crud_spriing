@@ -4,8 +4,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
+@EnableMethodSecurity
 @Configuration
 @AllArgsConstructor
 public class SecurityConfig {
@@ -39,21 +42,20 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                //set permission for each route or url
                 .authorizeHttpRequests(auth -> auth
-                        //allow url /api/auth/** do request without need authentication or token
+                        .requestMatchers("/ws-raw/**").permitAll()
+                        // Public routes
                         .requestMatchers("/api/auth/**").permitAll()
-                        //don't allow all url except /api/auth/** to do request without authentication or token
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/students/**").permitAll()
+                        // Admin-only routes
+                        .requestMatchers("/api/roles/**").hasRole("ADMIN")
+                        // Other routes require USER or ADMIN
+                        .anyRequest().hasAnyRole("USER", "ADMIN")
                 )
-                // handle error when have error or request without token by file CustomAuthenticationEntryPoint
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
                 )
-                //don't create sessionID store in memory, cause we use jwt token
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                //do a custom authentication custom with jwt not use default UsernamePasswordAuthenticationFilter
-                //when it works in jwt it will set to UsernamePasswordAuthenticationFilter that user login success full
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -1,5 +1,6 @@
 package com.example.StudentManagement.controller;
 
+import com.example.StudentManagement.dto.request.ChangePasswordRequest;
 import com.example.StudentManagement.dto.request.LoginRequest;
 import com.example.StudentManagement.dto.request.RefreshTokenRequest;
 import com.example.StudentManagement.dto.request.RegisterRequest;
@@ -42,9 +43,8 @@ public class AuthController extends BaseController{
     // LOGIN
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
-        String[] tokens = authService.login(request).split(",");
-        LoginResponse response = new LoginResponse(tokens[0], tokens[1]);
-        return ok(response, "User logged in successfully");
+        var tokens = authService.login(request);
+        return ok(tokens, "User logged in successfully");
     }
 
     // LOGOUT
@@ -63,7 +63,7 @@ public class AuthController extends BaseController{
 
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
 
         LoginResponse response = authService.refreshAccessToken(request.getRefreshToken());
 

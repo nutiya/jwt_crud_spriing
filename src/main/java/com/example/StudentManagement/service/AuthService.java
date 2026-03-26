@@ -1,6 +1,7 @@
 package com.example.StudentManagement.service;
 
 import com.example.StudentManagement.config.JwtConfig;
+import com.example.StudentManagement.dto.request.ChangePasswordRequest;
 import com.example.StudentManagement.dto.response.LoginResponse;
 import com.example.StudentManagement.dto.request.LoginRequest;
 import com.example.StudentManagement.dto.request.RegisterRequest;
@@ -11,24 +12,29 @@ import com.example.StudentManagement.entity.User;
 import com.example.StudentManagement.exception.DuplicateResourceException;
 import com.example.StudentManagement.exception.ResourceNotFoundException;
 import com.example.StudentManagement.exception.TokenExpiredException;
+import com.example.StudentManagement.exception.WrongPasswordException;
 import com.example.StudentManagement.mapper.UserMapper;
 import com.example.StudentManagement.repository.RefreshTokenRepository;
+import com.example.StudentManagement.repository.RoleRepository;
 import com.example.StudentManagement.repository.TokenBlacklistRepository;
 import com.example.StudentManagement.repository.UserRepository;
 import com.example.StudentManagement.security.JwtUtil;
+import com.example.StudentManagement.websocket.WebSocketController;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class AuthService {
 
     private final TokenBlacklistRepository blacklistRepository;
@@ -39,11 +45,12 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtConfig jwtConfig;
+    private final WebSocketController webSocketController;
+    private final RoleRepository roleRepository;
 
 
 
     // Logout user by blacklisting token
-    @Transactional
     public void logout(String token, Date expiryDate) {
         if (expiryDate == null) expiryDate = new Date();
         String email = jwtUtil.getUsernameFromToken(token);
@@ -56,6 +63,7 @@ public class AuthService {
         //store access token into blacklisted
         TokenBlacklist blacklisted = new TokenBlacklist(token, expiryDate.toInstant());
         blacklistRepository.save(blacklisted);
+        webSocketController.sendEvent("USER_LOGOUT", userMapper.toDto(user));
     }
 
     // Check if token is valid and not store in blacklisted
@@ -79,28 +87,37 @@ public class AuthService {
         user.setEmail(email);
         user.setName(name);
 
+        // assign default USER role
+        var userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new RuntimeException("Default role USER not found in DB"));
+        user.setRoles(Set.of(userRole));
+
         userRepository.save(user);
         return userMapper.toDto(user);
     }
 
-    public String login(LoginRequest request){
-
+    public LoginResponse login(LoginRequest request){
+        String email = request.getEmail().trim().toLowerCase();
         //get from bean authenticationManager in SecurityConfig to verify is email and password correct or not
         //in this process it call loadUserByUsername in UserDetailServiceImpl to check or verify
         //if success continue to generate access and refresh token else return an error exception
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(email, request.getPassword())
         );
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String accessToken = jwtUtil.generateToken(request.getEmail());
-        String refreshToken = createRefreshToken(request.getEmail());
-        return accessToken + "," + refreshToken;
+        String accessToken = jwtUtil.generateToken(email);
+        String refreshToken = createRefreshToken(email);
+        webSocketController.sendEvent("USER_LOGIN", userMapper.toDto(user));
+        return new LoginResponse(accessToken, refreshToken, userMapper.toDto(user));
     }
 
 
 
     public String createRefreshToken(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findByEmail(email.toLowerCase())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // Delete old refresh token if exists (single device login)
         refreshTokenRepository.deleteByUser(user);
@@ -132,7 +149,7 @@ public class AuthService {
         String newRefreshToken = createRefreshToken(user.getEmail());
         String newAccessToken = jwtUtil.generateToken(user.getEmail());
 
-        return new LoginResponse(newAccessToken, newRefreshToken);
+        return new LoginResponse(newAccessToken, newRefreshToken, userMapper.toDto(user));
     }
 
 //    public String refreshAccessToken(String refreshTokenStr) {

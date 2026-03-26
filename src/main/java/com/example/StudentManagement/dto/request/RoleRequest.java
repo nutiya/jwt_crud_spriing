@@ -1,17 +1,12 @@
 package com.example.StudentManagement.dto.request;
 
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
 @NoArgsConstructor
-public class GenderRequest {
-
-    @NotBlank(message = "Name is required")
+public class RoleRequest {
+    @NotBlank(message = "Role name is required")
     private String name;
-
 }
