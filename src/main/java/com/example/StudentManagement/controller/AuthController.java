@@ -58,7 +58,7 @@ public class AuthController extends BaseController{
         Date expiryDate = jwtUtil.getExpirationDate(token);
         authService.logout(token, expiryDate);
 
-        return ok(null, "User logged out successfully");
+        return ok((Void)null, "User logged out successfully");
     }
 
 

@@ -55,7 +55,7 @@ public class StudentController extends BaseController{
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id){
         studentService.deleteStudent(id);
-        return ok(null, "Student deleted successfully");
+        return ok((Void)null, "Student deleted successfully");
     }
 }
 
