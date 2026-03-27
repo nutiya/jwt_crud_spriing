@@ -52,7 +52,7 @@ public class UserController extends BaseController{
 
 
     @PostMapping("/{id}/change-password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(@PathVariable Long id, @Valid ChangePasswordRequest request){
+    public ResponseEntity<ApiResponse<Void>> changePassword(@PathVariable Long id, @Valid @RequestBody ChangePasswordRequest request){
         userService.changePassword(id, request);
         return ok((Void)null, "Change password successfully");
     }
