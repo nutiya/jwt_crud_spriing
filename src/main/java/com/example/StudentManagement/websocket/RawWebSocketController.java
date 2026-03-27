@@ -40,7 +40,7 @@ public class RawWebSocketController extends TextWebSocketHandler {
         sessions.remove(session);
     }
 
-    public void sendRawEvent(String eventType, Object payload) {
+    public void sendEvent(String eventType, Object payload) {
         try {
             System.out.println("🔥 Sending event: " + eventType);
             System.out.println("👥 Active sessions: " + sessions.size());

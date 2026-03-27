@@ -25,8 +25,8 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final GenderRepository genderRepository;
-    private final WebSocketController webSocketController;
-    private final RawWebSocketController rawWebSocketController;
+    private final RawWebSocketController webSocketController;
+    //private final RawWebSocketController rawWebSocketController;
 
 
     public List<StudentResponse> getAllStudents(String sort, String keyword) {
@@ -77,7 +77,6 @@ public class StudentService {
         student.setGender(gender);
         studentRepository.save(student);
         webSocketController.sendEvent("STUDENT_CREATED", studentMapper.toDto(student));
-        rawWebSocketController.sendRawEvent("STUDENT_CREATED", studentMapper.toDto(student));
         return studentMapper.toDto(student);
     }
 
@@ -105,7 +104,6 @@ public class StudentService {
         studentRepository.save(student);
 
         webSocketController.sendEvent("STUDENT_UPDATED", studentMapper.toDto(student));
-        rawWebSocketController.sendRawEvent("STUDENT_UPDATED", studentMapper.toDto(student));
         return studentMapper.toDto(student);
     }
 
@@ -117,7 +115,6 @@ public class StudentService {
         studentRepository.delete(student);
 
         webSocketController.sendEvent("STUDENT_DELETED", StudentResponse.builder().id(id).build());
-        rawWebSocketController.sendRawEvent("STUDENT_DELETED", StudentResponse.builder().id(id).build());
     }
 
 

@@ -7,6 +7,7 @@ import com.example.StudentManagement.exception.DuplicateResourceException;
 import com.example.StudentManagement.exception.ResourceNotFoundException;
 import com.example.StudentManagement.mapper.RoleMapper;
 import com.example.StudentManagement.repository.RoleRepository;
+import com.example.StudentManagement.websocket.RawWebSocketController;
 import com.example.StudentManagement.websocket.WebSocketController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class RoleService {
 
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
-    private final WebSocketController webSocketController;
+    private final RawWebSocketController webSocketController;
 
     // Create new role
     public RoleResponse createRole(RoleRequest request) {

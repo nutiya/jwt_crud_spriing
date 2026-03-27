@@ -7,6 +7,7 @@ import com.example.StudentManagement.exception.DuplicateResourceException;
 import com.example.StudentManagement.exception.ResourceNotFoundException;
 import com.example.StudentManagement.mapper.GenderMapper;
 import com.example.StudentManagement.repository.GenderRepository;
+import com.example.StudentManagement.websocket.RawWebSocketController;
 import com.example.StudentManagement.websocket.WebSocketController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class GenderService {
 
     private final GenderRepository genderRepository;
     private final GenderMapper genderMapper;
-    private final WebSocketController webSocketController;
+    private final RawWebSocketController webSocketController;
 
 
     public List<GenderResponse> getAllGenders() {

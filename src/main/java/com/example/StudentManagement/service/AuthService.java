@@ -19,6 +19,7 @@ import com.example.StudentManagement.repository.RoleRepository;
 import com.example.StudentManagement.repository.TokenBlacklistRepository;
 import com.example.StudentManagement.repository.UserRepository;
 import com.example.StudentManagement.security.JwtUtil;
+import com.example.StudentManagement.websocket.RawWebSocketController;
 import com.example.StudentManagement.websocket.WebSocketController;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,7 +46,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtConfig jwtConfig;
-    private final WebSocketController webSocketController;
+    private final RawWebSocketController webSocketController;
     private final RoleRepository roleRepository;
 
 

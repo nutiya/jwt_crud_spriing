@@ -13,6 +13,7 @@ import com.example.StudentManagement.exception.WrongPasswordException;
 import com.example.StudentManagement.mapper.UserMapper;
 import com.example.StudentManagement.repository.RoleRepository;
 import com.example.StudentManagement.repository.UserRepository;
+import com.example.StudentManagement.websocket.RawWebSocketController;
 import com.example.StudentManagement.websocket.WebSocketController;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -30,7 +31,7 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
-    private final WebSocketController webSocketController;
+    private final RawWebSocketController webSocketController;
 
 
 

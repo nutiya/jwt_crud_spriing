@@ -51,7 +51,7 @@ public class UserController extends BaseController{
     }
 
 
-    @PostMapping("/change-password")
+    @PostMapping("/{id}/change-password")
     public ResponseEntity<ApiResponse<Void>> changePassword(@PathVariable Long id, @Valid ChangePasswordRequest request){
         userService.changePassword(id, request);
         return ok((Void)null, "Change password successfully");
@@ -61,6 +61,6 @@ public class UserController extends BaseController{
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteStudent(@PathVariable Long id) {
         userService.deleteStudent(id);
-        return ok((Void) null, "Student deleted successfully");
+        return ok((Void) null, "User deleted successfully");
     }
 }
