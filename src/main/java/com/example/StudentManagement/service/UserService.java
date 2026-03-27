@@ -74,27 +74,27 @@ public class UserService {
     public UserResponse updateUser(Long id, UpdateUserRequest request){
         String newName = request.getName().trim();
         String newEmail = request.getEmail().trim().toLowerCase();
-        var student = userRepository.findById(id)
+        var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with id " + id));
 
-        if(!newEmail.equals(student.getEmail())){
+        if(!newEmail.equals(user.getEmail())){
             if(userRepository.existsByEmail(newEmail)){
                 throw new DuplicateResourceException("Email is already in use");
             }
         }
 
-        if(!newName.equals(student.getName())){
+        if(!newName.equals(user.getName())){
             if(userRepository.existsByName(newName)){
                 throw new DuplicateResourceException("Name is already in use");
             }
         }
 
-        userMapper.update(request, student);
-        student.setName(newName);
-        student.setEmail(newEmail);
-        userRepository.save(student);
-
-        return userMapper.toDto(student);
+        userMapper.update(request, user);
+        user.setName(newName);
+        user.setEmail(newEmail);
+        userRepository.save(user);
+        webSocketController.sendEvent("USER_UPDATED", userMapper.toDto(user));
+        return userMapper.toDto(user);
     }
 
 
@@ -111,7 +111,7 @@ public class UserService {
 
         user.setRoles(roles);
         userRepository.save(user);
-
+        webSocketController.sendEvent("USER_UPDATED_ROLE", userMapper.toDto(user));
         return userMapper.toDto(user);
     }
 
@@ -119,5 +119,6 @@ public class UserService {
         var student = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with id " + id));
         userRepository.delete(student);
+        webSocketController.sendEvent("USER_DELETED", StudentResponse.builder().id(id).build());
     }
 }
