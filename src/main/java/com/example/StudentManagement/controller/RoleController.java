@@ -58,6 +58,6 @@ public class RoleController extends BaseController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
-        return ok(null, "Role deleted successfully");
+        return ok((Void)null, "Role deleted successfully");
     }
 }
