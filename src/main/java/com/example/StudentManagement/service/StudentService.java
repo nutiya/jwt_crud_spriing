@@ -102,9 +102,11 @@ public class StudentService {
         student.setAddress(newAddress);
         student.setGender(gender);
         studentRepository.save(student);
+        Student updatedStudent = studentRepository.findById(student.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found after update"));
 
-        webSocketController.sendEvent("STUDENT_UPDATED", studentMapper.toDto(student));
-        return studentMapper.toDto(student);
+        webSocketController.sendEvent("STUDENT_UPDATED", studentMapper.toDto(updatedStudent));
+        return studentMapper.toDto(updatedStudent);
     }
 
 
