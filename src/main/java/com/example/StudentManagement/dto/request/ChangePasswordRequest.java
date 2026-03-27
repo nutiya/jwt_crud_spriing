@@ -10,7 +10,7 @@ public class ChangePasswordRequest {
     @NotBlank(message = "Current password is required")
     private final String oldPassword;
 
-    @NotBlank(message = "Current password is required")
+    @NotBlank(message = "New password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
     @Pattern(
             regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$",
